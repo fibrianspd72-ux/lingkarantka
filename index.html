@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <!-- STREAMING_CHUNK:Configuring head elements, Tailwind CSS, MathJax and Google Fonts... -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Matematika Tingkat Lanjut - Geometri Lingkaran SMA</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- MathJax for rendering LaTeX formulas -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* STREAMING_CHUNK:Setting up base styles, gradients, and custom themes... */
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+    }
+
+    .glass-box {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      transition: all 0.2s ease;
+    }
+    .btn-action:hover {
+      background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+    }
+
+    /* LaTeX math custom styling adjustments */
+    mjx-container {
+      font-size: 110% !important;
+    }
+  </style>
+</head>
+<body class="flex flex-col justify-between min-h-screen">
+
+  <!-- STREAMING_CHUNK:Rendering Top Header displaying Student Identity... -->
+  <!-- HEADER PERMANEN: IDENTITAS SISWA DI KIRI ATAS -->
+  <header id="student-header" class="hidden sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-indigo-500/30 px-4 py-3 shadow-lg">
+    <div class="max-w-5xl mx-auto flex justify-between items-center">
+      <!-- Identitas Siswa (Kiri Atas) -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-black text-white text-lg shadow-md border border-indigo-300/30">
+          👨‍🎓
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span id="header-student-name" class="font-bold text-white text-sm md:text-base">Nama Siswa</span>
+            <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-md font-semibold" id="header-student-class">Kelas</span>
+          </div>
+          <p id="header-student-absent" class="text-xs text-slate-400">No. Absen: -</p>
+        </div>
+      </div>
+
+      <!-- Progres Soal (Kanan Atas) -->
+      <div class="text-right">
+        <span class="text-xs text-slate-400 block font-medium">Progres Kuis</span>
+        <span id="question-progress" class="text-xs md:text-sm font-extrabold text-purple-400">Soal 1 dari 12</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-grow flex items-center justify-center p-4">
+
+    <!-- STREAMING_CHUNK:Screen 1 - Form Input Identitas Siswa... -->
+    <!-- 1. HALAMAN INPUT IDENTITAS SISWA -->
+    <div id="screen-identity" class="w-full max-w-lg glass-box rounded-3xl p-6 md:p-8 shadow-2xl my-auto">
+      <div class="text-center mb-8">
+        <div class="inline-flex p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-4xl mb-3">
+          📐
+        </div>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Kuis Matematika Tingkat Lanjut</h1>
+        <p class="text-xs md:text-sm text-indigo-300 font-semibold mt-1">Materi: Persamaan, Garis Singgung & Aplikasi Lingkaran</p>
+      </div>
+
+      <form onsubmit="startQuiz(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Nama Lengkap Siswa</label>
+          <input type="text" id="input-name" required placeholder="Masukkan nama lengkap"
+            class="w-full px-4 py-3 rounded-xl bg-slate-800/80 border border-slate-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 font-semibold text-white outline-none transition">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Kelas / Jurusan</label>
+            <input type="text" id="input-class" required placeholder="Contoh: XI Tingkat Lanjut 1"
+              class="w-full px-4 py-3 rounded-xl bg-slate-800/80 border border-slate-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 font-semibold text-white outline-none transition">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Nomor Absen</label>
+            <input type="number" id="input-absent" required placeholder="Contoh: 14"
+              class="w-full px-4 py-3 rounded-xl bg-slate-800/80 border border-slate-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 font-semibold text-white outline-none transition">
+          </div>
+        </div>
+
+        <div class="pt-4">
+          <button type="submit" class="w-full py-4 btn-action font-extrabold text-white rounded-xl shadow-lg flex items-center justify-center space-x-2">
+            <span>MULAI KERJAKAN KUIS</span>
+            <span class="text-xl">➔</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- STREAMING_CHUNK:Screen 2 - Interactive Question Layout & Mechanics... -->
+    <!-- 2. HALAMAN SLIDE SOAL INTERAKTIF -->
+    <div id="screen-quiz" class="hidden w-full max-w-4xl glass-box rounded-3xl p-5 md:p-8 my-auto">
+      
+      <!-- Top Meta Soal -->
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-700/60">
+        <span id="question-category" class="px-3 py-1 rounded-md bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30">
+          Kategori Soal
+        </span>
+        <button onclick="toggleHint()" class="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center space-x-1 bg-amber-400/10 px-3 py-1.5 rounded-lg border border-amber-400/30 transition">
+          <span>💡 Petunjuk Penyelesaian</span>
+        </button>
+      </div>
+
+      <!-- Box Petunjuk (Modal/Hidden) -->
+      <div id="hint-box" class="hidden mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs md:text-sm leading-relaxed">
+        <div class="font-bold mb-1 flex items-center text-amber-400">
+          <span class="mr-1">💡</span> Petunjuk Guru Matematika:
+        </div>
+        <div id="hint-text">--</div>
+      </div>
+
+      <!-- Narasi / Context Soal -->
+      <div id="question-context" class="hidden mb-4 p-4 rounded-2xl bg-slate-800/90 border border-slate-700 text-slate-200 text-sm leading-relaxed">
+        <!-- Teks narasi stimulus/kasus dimuat di sini -->
+      </div>
+
+      <!-- Pertanyaan Utama -->
+      <div id="question-text" class="text-base md:text-lg font-bold text-white mb-6 leading-relaxed">
+        <!-- Pertanyaan LaTeX dimuat di sini -->
+      </div>
+
+      <!-- Container Pilihan Jawaban / Opsi -->
+      <div id="options-container" class="space-y-3 mb-6">
+        <!-- Opsi dimuat dinamis -->
+      </div>
+
+      <!-- Box Feedback / Pembahasan -->
+      <div id="feedback-box" class="hidden p-4 md:p-5 rounded-2xl mb-6 text-sm border transition-all">
+        <div id="feedback-status" class="font-extrabold text-base mb-1 flex items-center"></div>
+        <div id="feedback-explanation" class="text-slate-300 leading-relaxed overflow-x-auto"></div>
+      </div>
+
+      <!-- Navigasi -->
+      <div class="flex justify-end pt-2">
+        <button id="btn-next" onclick="nextQuestion()" disabled
+          class="px-8 py-3.5 bg-slate-700 text-slate-400 font-extrabold rounded-xl cursor-not-allowed transition flex items-center space-x-2">
+          <span>Soal Berikutnya</span>
+          <span>➔</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- STREAMING_CHUNK:Screen 3 - Score Summary & Final Evaluation... -->
+    <!-- 3. HALAMAN HASIL SKOR & REKAPITULASI -->
+    <div id="screen-result" class="hidden w-full max-w-lg glass-box rounded-3xl p-6 md:p-8 my-auto text-center">
+      <div class="inline-flex p-4 rounded-full bg-purple-500/20 text-5xl mb-3 border border-purple-500/40">
+        🎓
+      </div>
+      <h2 class="text-2xl md:text-3xl font-extrabold text-white">Laporan Hasil Kuis</h2>
+      <p id="result-student-detail" class="text-sm font-semibold text-indigo-300 mt-1 mb-6">Nama Siswa | Kelas</p>
+
+      <!-- Kartu Nilai Utama -->
+      <div class="bg-gradient-to-br from-indigo-600 to-purple-700 text-white p-6 rounded-3xl shadow-xl border border-indigo-400/30 mb-6 relative overflow-hidden">
+        <p class="text-xs uppercase font-extrabold tracking-widest text-indigo-200">SKOR AKHIR MATEMATIKA</p>
+        <div id="result-score" class="text-6xl font-black my-2">0</div>
+        <p id="result-evaluation" class="text-xs md:text-sm font-bold text-indigo-100">Evaluasi Kemampuan</p>
+      </div>
+
+      <!-- Detail Benar & Salah -->
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-2xl">
+          <p class="text-xs font-bold text-emerald-400 uppercase">Jawaban Benar</p>
+          <p id="result-correct" class="text-2xl font-black text-emerald-300">0</p>
+        </div>
+        <div class="bg-rose-500/10 border border-rose-500/30 p-4 rounded-2xl">
+          <p class="text-xs font-bold text-rose-400 uppercase">Jawaban Salah</p>
+          <p id="result-wrong" class="text-2xl font-black text-rose-300">0</p>
+        </div>
+      </div>
+
+      <button onclick="restartQuiz()" class="w-full py-4 btn-action font-extrabold text-white rounded-xl shadow-lg">
+        ULANGI KUIS 🔄
+      </button>
+    </div>
+
+  </main>
+
+  <footer class="py-4 text-center text-xs text-slate-500 font-medium">
+    Kuis Interaktif Matematika SMA • Kurikulum Merdeka & AKM
+  </footer>
+
+  <!-- STREAMING_CHUNK:Populating 12 Advanced Circle Geometry Questions & Logic... -->
+  <script>
+    // DATA 12 SOAL LATIHAN SETIPE GAMBAR UPLOAD (Lingkaran SMA Tingkat Lanjut)
+    const questionsData = [
+      {
+        category: "Konteks Nyata: Jendela & Juring (Soal Tipe Gambar 1)",
+        context: "<b>Teks 1:</b> Di sebuah gedung bersejarah, terdapat jendela kaca bulat dengan jari-jari $r = 60\\text{ cm}$. Rangka besi membagi jendela menjadi 6 juring sama besar.",
+        question: "1. Luas kaca untuk <b>satu bagian juring</b> jendela tersebut adalah...",
+        hint: "Gunakan rumus Luas Juring $= \\frac{\\theta}{360^\\circ} \\times \\pi r^2$, dengan $\\theta = \\frac{360^\\circ}{6} = 60^\\circ$.",
+        options: [
+          "$100\\pi\\text{ cm}^2$",
+          "$300\\pi\\text{ cm}^2$",
+          "$600\\pi\\text{ cm}^2$",
+          "$1.200\\pi\\text{ cm}^2$"
+        ],
+        correct: 2,
+        explanation: "$\\theta = 360^\\circ / 6 = 60^\\circ$.<br>Luas 1 Juring $= \\frac{60^\\circ}{360^\\circ} \\times \\pi (60)^2 = \\frac{1}{6} \\times 3600\\pi = 600\\pi\\text{ cm}^2$."
+      },
+      {
+        category: "Konteks Nyata: Panjang Busur (Soal Tipe Gambar 1)",
+        context: "<b>Teks 1:</b> Pada jendela lingkaran dengan jari-jari $r = 60\\text{ cm}$ yang terbagi menjadi 6 bagian sama besar.",
+        question: "2. Panjang busur untuk <b>satu bagian juring</b> jendela tersebut adalah...",
+        hint: "Gunakan rumus Panjang Busur $= \\frac{1}{6} \\times \\text{Keliling Lingkaran} = \\frac{1}{6} \\times 2\\pi r$.",
+        options: [
+          "$10\\pi\\text{ cm}$",
+          "$20\\pi\\text{ cm}$",
+          "$30\\pi\\text{ cm}$",
+          "$60\\pi\\text{ cm}$"
+        ],
+        correct: 1,
+        explanation: "Panjang Busur $= \\frac{1}{6} \\times 2\\pi (60) = \\frac{120\\pi}{6} = 20\\pi\\text{ cm}$."
+      },
+      {
+        category: "Soal Komprehensif Rangka Besi (Tipe Gambar 1)",
+        context: "<b>Teks 1:</b> Rangka besi dipasang mengelilingi jendela (keliling) dan sepanjang 6 buah jari-jari pembatas juring.",
+        question: "3. Total panjang rangka besi pembatas dan keliling yang dibutuhkan untuk jendela tersebut adalah...",
+        hint: "Total besi $= \\text{Keliling Lingkaran} + 6 \\times \\text{Jari-jari} = 2\\pi r + 6r$.",
+        options: [
+          "$(360 + 120\\pi)\\text{ cm}$",
+          "$(180 + 60\\pi)\\text{ cm}$",
+          "$(360 + 60\\pi)\\text{ cm}$",
+          "$(120 + 360\\pi)\\text{ cm}$"
+        ],
+        correct: 0,
+        explanation: "Panjang 6 jari-jari $= 6 \\times 60 = 360\\text{ cm}$.<br>Keliling lingkaran $= 2\\pi(60) = 120\\pi\\text{ cm}$.<br>Total Rangka $= (360 + 120\\pi)\\text{ cm}$."
+      },
+      {
+        category: "Geometri Analitis: Persamaan Lingkaran Sepusat (Tipe Gambar 2)",
+        context: "<b>Teks 2:</b> Lingkaran A berpusat di $P(-3, 4)$ dan memiliki diameter $d = 4$ satuan (sehingga $r = 2$).",
+        question: "4. Persamaan lingkaran yang **sepusat** dengan Lingkaran A tetapi memiliki jari-jari dua kali lipat ($r = 4$) adalah...",
+        hint: "Bentuk persamaan lingkaran pusat $(a,b)$ adalah $(x-a)^2 + (y-b)^2 = R^2$. Masukkan $a=-3, b=4, R=4$.",
+        options: [
+          "$(x + 3)^2 + (y - 4)^2 = 16$",
+          "$(x - 3)^2 + (y + 4)^2 = 16$",
+          "$(x + 3)^2 + (y - 4)^2 = 4$",
+          "$x^2 + y^2 + 6x - 8y + 25 = 0$"
+        ],
+        correct: 0,
+        explanation: "Pusat $(a,b) = (-3,4)$ dan $R = 2 \\times 2 = 4$.<br>Persamaan: $(x - (-3))^2 + (y - 4)^2 = 4^2 \\implies (x + 3)^2 + (y - 4)^2 = 16$."
+      },
+      {
+        category: "Garis Singgung Tegak Lurus (Soal Tipe Gambar 3)",
+        context: "<b>Teks 3:</b> Diberikan garis $k$ yang melalui titik $C(-1, 0)$ dan $D(0, 2)$. Lingkaran berpusat di $A(2, -3)$ dengan titik pada lingkaran $B(3, -1)$.",
+        question: "5. Gradien dari garis singgung lingkaran yang **tegak lurus** terhadap garis $k$ adalah...",
+        hint: "Cari gradien $m_k = \\frac{y_2 - y_1}{x_2 - x_1}$. Garis tegak lurus memenuhi $m_{singgung} \\times m_k = -1$.",
+        options: [
+          "$2$",
+          "$\\frac{1}{2}$",
+          "$-\\frac{1}{2}$",
+          "$-2$"
+        ],
+        correct: 2,
+        explanation: "Gradien garis $k$ melalui $(-1,0)$ dan $(0,2)$ adalah $m_k = \\frac{2 - 0}{0 - (-1)} = 2$.<br>Karena garis singgung tegak lurus $k$, maka $m_s = -\\frac{1}{m_k} = -\\frac{1}{2}$."
+      },
+      {
+        category: "Konteks Kaca Patri: Luas & Jari-jari (Tipe Gambar 4)",
+        context: "<b>Teks 4:</b> Pak Baskara membuat ornamen kaca patri bulat. Ornamen dibagi menjadi 4 juring sama besar (2 merah, 1 kuning, 1 hijau). Luas 1 potong kaca merah $= 456\\text{ cm}^2$ (Gunakan $\\pi \\approx 3,14$).",
+        question: "6. Jari-jari lingkaran ornamen kaca patri tersebut adalah sekitar...",
+        hint: "Luas 1 juring $= \\frac{1}{4} \\pi r^2 = 456$. Selesaikan untuk mencari $r$.",
+        options: [
+          "$20\\text{ cm}$",
+          "$24\\text{ cm}$",
+          "$25\\text{ cm}$",
+          "$30\\text{ cm}$"
+        ],
+        correct: 1,
+        explanation: "$\\frac{1}{4} \\times 3,14 \\times r^2 = 456 \\implies 0,785 r^2 = 456 \\implies r^2 \\approx 580,89 \\implies r \\approx 24.1\\text{ cm} \\approx 24\\text{ cm}$."
+      },
+      {
+        category: "Konteks Kerangka Logam Ornamen (Tipe Gambar 4)",
+        context: "<b>Teks 4:</b> Kerangka logam terdiri dari keliling lingkaran ($2\\pi r$) ditambah persegi di dalam lingkaran dengan diagonal $= 2r$ (sisi persegi $s = r\\sqrt{2}$). Jari-jari $r = 24\\text{ cm}$, gunakan $\\sqrt{2} \\approx 1,4$.",
+        question: "7. Estimasi panjang total kawat logam yang dibutuhkan untuk kerangka adalah sekitar...",
+        hint: "Total kawat $= \\text{Keliling Lingkaran} + 4 \\times s = 2\\pi r + 4(r\\sqrt{2})$.",
+        options: [
+          "$2,85\\text{ meter}$",
+          "$3,50\\text{ meter}$",
+          "$4,20\\text{ meter}$",
+          "$5,10\\text{ meter}$"
+        ],
+        correct: 0,
+        explanation: "Keliling $= 2 \\times 3,14 \\times 24 = 150,72\\text{ cm}$.<br>Sisi persegi $s = 24 \\times 1,4 = 33,6\\text{ cm}$. Keliling persegi $= 4 \\times 33,6 = 134,4\\text{ cm}$.<br>Total $= 150,72 + 134,4 = 285,12\\text{ cm} \\approx 2,85\\text{ meter}$."
+      },
+      {
+        category: "Persamaan Garis Singgung Melalui Titik Pada Lingkaran",
+        context: "Diberikan persamaan lingkaran $x^2 + y^2 = 25$. Titik $T(3, 4)$ terletak pada lingkaran tersebut.",
+        question: "8. Persamaan garis singgung lingkaran di titik $T(3, 4)$ adalah...",
+        hint: "Rumus garis singgung di titik $(x_1, y_1)$ pada $x^2+y^2=r^2$ adalah $x_1 x + y_1 y = r^2$.",
+        options: [
+          "$3x + 4y = 25$",
+          "$4x + 3y = 25$",
+          "$3x - 4y = 25$",
+          "$4x - 3y = 25$"
+        ],
+        correct: 0,
+        explanation: "Substitusi $x_1=3$ dan $y_1=4$ ke rumus $x_1 x + y_1 y = r^2 \\implies 3x + 4y = 25$."
+      },
+      {
+        category: "Kedudukan Garis Terhadap Lingkaran",
+        context: "Diberikan garis $y = x + 1$ dan lingkaran $x^2 + y^2 = 25$.",
+        question: "9. Kedudukan garis $y = x + 1$ terhadap lingkaran $x^2 + y^2 = 25$ adalah...",
+        hint: "Substitusikan $y = x+1$ ke persamaan lingkaran, lalu hitung nilai Diskriminan $D = b^2 - 4ac$.",
+        options: [
+          "Memotong lingkaran di dua titik ($D > 0$)",
+          "Menyinggung lingkaran di satu titik ($D = 0$)",
+          "Tidak memotong maupun menyinggung ($D < 0$)",
+          "Melalui pusat lingkaran"
+        ],
+        correct: 0,
+        explanation: "$x^2 + (x+1)^2 = 25 \\implies 2x^2 + 2x - 24 = 0 \\implies x^2 + x - 12 = 0$.<br>Diskriminan $D = 1^2 - 4(1)(-12) = 49 > 0$. Karena $D > 0$, garis memotong lingkaran di dua titik."
+      },
+      {
+        category: "Panjang Tali Busur & Luas Tembereng",
+        context: "Sebuah juring lingkaran memiliki sudut pusat $90^\\circ$ dan jari-jari $10\\text{ cm}$.",
+        question: "10. Luas tembereng lingkaran yang dibatasi oleh juring tersebut adalah...",
+        hint: "Luas Tembereng $= \\text{Luas Juring} - \\text{Luas Segitiga} = \\frac{90^\\circ}{360^\\circ}\\pi r^2 - \\frac{1}{2} r^2$.",
+        options: [
+          "$(25\\pi - 50)\\text{ cm}^2$",
+          "$(50\\pi - 25)\\text{ cm}^2$",
+          "$(25\\pi - 25)\\text{ cm}^2$",
+          "$(100\\pi - 50)\\text{ cm}^2$"
+        ],
+        correct: 0,
+        explanation: "Luas Juring $= \\frac{1}{4} \\pi (10)^2 = 25\\pi$.<br>Luas Segitiga siku-siku $= \\frac{1}{2} \\times 10 \\times 10 = 50$.<br>Luas Tembereng $= (25\\pi - 50)\\text{ cm}^2$."
+      },
+      {
+        category: "Persamaan Lingkaran Bentuk Umum",
+        context: "Diberikan persamaan lingkaran $x^2 + y^2 - 6x + 8y - 11 = 0$.",
+        question: "11. Titik pusat $P$ dan jari-jari $r$ dari lingkaran tersebut berturut-turut adalah...",
+        hint: "Pusat $= (-A/2, -B/2)$ dan $r = \\sqrt{(-A/2)^2 + (-B/2)^2 - C}$.",
+        options: [
+          "Pusat $(3, -4)$ dan $r = 6$",
+          "Pusat $(-3, 4)$ dan $r = 6$",
+          "Pusat $(3, -4)$ dan $r = 36$",
+          "Pusat $(6, -8)$ dan $r = 11$"
+        ],
+        correct: 0,
+        explanation: "$A = -6, B = 8, C = -11$.<br>Pusat $= (3, -4)$.<br>$r = \\sqrt{3^2 + (-4)^2 - (-11)} = \\sqrt{9 + 16 + 11} = \\sqrt{36} = 6$."
+      },
+      {
+        category: "Panjang Garis Singgung Persekutuan Luar",
+        context: "Dua lingkaran masing-masing berjari-jari $R = 11\\text{ cm}$ dan $r = 3\\text{ cm}$. Jarak kedua pusat lingkaran $d = 17\\text{ cm}$.",
+        question: "12. Panjang garis singgung persekutuan luar ($L$) kedua lingkaran tersebut adalah...",
+        hint: "Gunakan rumus $L = \\sqrt{d^2 - (R - r)^2}$.",
+        options: [
+          "$15\\text{ cm}$",
+          "$12\\text{ cm}$",
+          "$8\\text{ cm}$",
+          "$10\\text{ cm}$"
+        ],
+        correct: 0,
+        explanation: "$L = \\sqrt{17^2 - (11 - 3)^2} = \\sqrt{289 - 8^2} = \\sqrt{289 - 64} = \\sqrt{225} = 15\\text{ cm}$."
+      }
+    ];
+
+    // State Variables
+    let currentQ = 0;
+    let score = 0;
+    let studentName = "";
+    let studentClass = "";
+    let studentAbsent = "";
+
+    // STREAMING_CHUNK:Handling Quiz Initialization & Navigation...
+    function startQuiz(e) {
+      e.preventDefault();
+      studentName = document.getElementById('input-name').value.trim();
+      studentClass = document.getElementById('input-class').value.trim();
+      studentAbsent = document.getElementById('input-absent').value.trim();
+
+      if (!studentName || !studentClass || !studentAbsent) return;
+
+      // Update Header
+      document.getElementById('header-student-name').innerText = studentName;
+      document.getElementById('header-student-class').innerText = studentClass;
+      document.getElementById('header-student-absent').innerText = `No. Absen: ${studentAbsent}`;
+
+      // Switch Screen
+      document.getElementById('screen-identity').classList.add('hidden');
+      document.getElementById('student-header').classList.remove('hidden');
+      document.getElementById('screen-quiz').classList.remove('hidden');
+
+      loadQuestion();
+    }
+
+    // STREAMING_CHUNK:Loading and Rendering Individual Questions...
+    function loadQuestion() {
+      const q = questionsData[currentQ];
+
+      // Update Meta
+      document.getElementById('question-category').innerText = q.category;
+      document.getElementById('question-progress').innerText = `Soal ${currentQ + 1} dari ${questionsData.length}`;
+
+      // Set Context & Question Text
+      const contextBox = document.getElementById('question-context');
+      if (q.context) {
+        contextBox.innerHTML = q.context;
+        contextBox.classList.remove('hidden');
+      } else {
+        contextBox.classList.add('hidden');
+      }
+
+      document.getElementById('question-text').innerHTML = q.question;
+      document.getElementById('hint-text').innerHTML = q.hint;
+      document.getElementById('hint-box').classList.add('hidden');
+      document.getElementById('feedback-box').classList.add('hidden');
+
+      // Options
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left p-4 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 hover:border-indigo-500 font-semibold text-slate-200 transition flex items-center space-x-3";
+        btn.onclick = () => selectOption(idx);
+
+        btn.innerHTML = `
+          <span class="w-8 h-8 rounded-lg bg-slate-700 font-bold flex items-center justify-center text-xs text-indigo-300 border border-slate-600">${String.fromCharCode(65 + idx)}</span>
+          <span class="text-sm md:text-base">${opt}</span>
+        `;
+        container.appendChild(btn);
+      });
+
+      // Reset Next Button
+      const btnNext = document.getElementById('btn-next');
+      btnNext.disabled = true;
+      btnNext.className = "px-8 py-3.5 bg-slate-700 text-slate-400 font-extrabold rounded-xl cursor-not-allowed transition flex items-center space-x-2";
+
+      if (window.MathJax) {
+        MathJax.typesetPromise();
+      }
+    }
+
+    function toggleHint() {
+      const box = document.getElementById('hint-box');
+      box.classList.toggle('hidden');
+      if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    // STREAMING_CHUNK:Evaluating answers & displaying teacher feedback...
+    function selectOption(selectedIdx) {
+      const q = questionsData[currentQ];
+      const container = document.getElementById('options-container');
+      const buttons = container.children;
+
+      for (let btn of buttons) {
+        btn.disabled = true;
+        btn.classList.remove('hover:bg-slate-700', 'hover:border-indigo-500');
+      }
+
+      const feedbackBox = document.getElementById('feedback-box');
+      const feedbackStatus = document.getElementById('feedback-status');
+      const feedbackExplanation = document.getElementById('feedback-explanation');
+
+      feedbackBox.classList.remove('hidden', 'bg-emerald-500/10', 'bg-rose-500/10', 'border-emerald-500/30', 'border-rose-500/30');
+
+      if (selectedIdx === q.correct) {
+        buttons[selectedIdx].className = "w-full text-left p-4 rounded-xl border border-emerald-500 bg-emerald-500/20 font-bold text-emerald-200 flex items-center space-x-3";
+        feedbackBox.classList.add('bg-emerald-500/10', 'border-emerald-500/30');
+        feedbackStatus.className = "font-extrabold text-base mb-1 text-emerald-400";
+        feedbackStatus.innerHTML = "🎉 Jawaban Benar!";
+        score += 10;
+      } else {
+        buttons[selectedIdx].className = "w-full text-left p-4 rounded-xl border border-rose-500 bg-rose-500/20 font-bold text-rose-200 flex items-center space-x-3";
+        buttons[q.correct].className = "w-full text-left p-4 rounded-xl border border-emerald-500 bg-emerald-500/20 font-bold text-emerald-200 flex items-center space-x-3";
+        feedbackBox.classList.add('bg-rose-500/10', 'border-rose-500/30');
+        feedbackStatus.className = "font-extrabold text-base mb-1 text-rose-400";
+        feedbackStatus.innerHTML = "❌ Jawaban Belum Tepat";
+      }
+
+      feedbackExplanation.innerHTML = `<b>Solusi Guru:</b><br>${q.explanation}`;
+
+      const btnNext = document.getElementById('btn-next');
+      btnNext.disabled = false;
+      btnNext.className = "px-8 py-3.5 btn-action text-white font-extrabold rounded-xl shadow-lg transition flex items-center space-x-2";
+
+      if (currentQ === questionsData.length - 1) {
+        btnNext.innerHTML = "<span>Lihat Rekap Skor</span> 🏆";
+      } else {
+        btnNext.innerHTML = "<span>Soal Berikutnya</span> ➔";
+      }
+
+      if (window.MathJax) {
+        MathJax.typesetPromise();
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQ < questionsData.length - 1) {
+        currentQ++;
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    // STREAMING_CHUNK:Final evaluation score summary calculation...
+    function showResults() {
+      document.getElementById('screen-quiz').classList.add('hidden');
+      document.getElementById('screen-result').classList.remove('hidden');
+
+      const maxScore = questionsData.length * 10;
+      const finalScore = Math.round((score / maxScore) * 100);
+
+      document.getElementById('result-student-detail').innerText = `${studentName} | ${studentClass} (Absen: ${studentAbsent})`;
+      document.getElementById('result-score').innerText = finalScore;
+
+      const correctCount = score / 10;
+      const wrongCount = questionsData.length - correctCount;
+
+      document.getElementById('result-correct').innerText = correctCount;
+      document.getElementById('result-wrong').innerText = wrongCount;
+
+      const evalText = document.getElementById('result-evaluation');
+      if (finalScore >= 85) {
+        evalText.innerText = "🌟 Sangat Baik! Pemahaman konsep geometri lingkaran kamu sangat matang!";
+      } else if (finalScore >= 70) {
+        evalText.innerText = "👍 Baik! Kuasai lagi variasi soal konteks nyata dan garis singgung.";
+      } else {
+        evalText.innerText = "💪 Perlu Latihan Lagi! Pelajari kembali petunjuk penyelesaian dan rumus lingkaran.";
+      }
+    }
+
+    function restartQuiz() {
+      currentQ = 0;
+      score = 0;
+
+      document.getElementById('screen-result').classList.add('hidden');
+      document.getElementById('screen-quiz').classList.remove('hidden');
+
+      loadQuestion();
+    }
+  </script>
+</body>
+</html>
+```eof
+
